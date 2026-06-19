@@ -1,1 +1,1 @@
-const API_URL = "https://entitled-additions-equity-educators.trycloudflare.com";
+const API_URL = "https://demonstrated-divine-invoice-poor.trycloudflare.com";
