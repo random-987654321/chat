@@ -1,1 +1,1 @@
-const API_URL = "https://seal-conscious-chambers-expert.trycloudflare.com";
+const API_URL = "https://organisms-boundary-economic-hypothetical.trycloudflare.com";
