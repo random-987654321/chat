@@ -1,1 +1,1 @@
-const API_URL = "https://perfume-casual-sagem-anything.trycloudflare.com";
+const API_URL = "https://commission-photos-stanley-shortly.trycloudflare.com";
