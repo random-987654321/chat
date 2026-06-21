@@ -1,1 +1,1 @@
-const API_URL = "https://quickly-shade-wilderness-meter.trycloudflare.com";
+const API_URL = "https://gif-reed-impossible-happiness.trycloudflare.com";
