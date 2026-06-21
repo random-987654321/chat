@@ -1,1 +1,1 @@
-const API_URL = "https://attributes-johns-utah-parish.trycloudflare.com";
+const API_URL = "https://sensors-began-hourly-recognised.trycloudflare.com";
