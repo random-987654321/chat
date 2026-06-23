@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ollama Chat</title>
+    <title>Chat</title>
     <style>
         * {
             margin: 0;
@@ -12,8 +12,9 @@
         }
 
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #0b0e14;
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -23,97 +24,80 @@
 
         .chat-container {
             width: 100%;
-            max-width: 700px;
-            background: #141a22;
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+            max-width: 720px;
+            background: #111;
+            border: 1px solid #33ff33;
+            border-radius: 8px;
+            padding: 1rem;
         }
 
-        h1 {
-            font-size: 1.3rem;
-            font-weight: 500;
-            color: #e0e6ed;
+        .header {
+            font-size: 0.9rem;
+            color: #33ff33;
+            border-bottom: 1px solid #33ff33;
+            padding-bottom: 0.5rem;
             margin-bottom: 1rem;
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            letter-spacing: -0.01em;
+            justify-content: space-between;
         }
 
-        h1 span {
-            background: #1f6feb;
-            border-radius: 6px;
-            padding: 0.1rem 0.6rem;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #fff;
-            margin-left: 0.5rem;
-            letter-spacing: 0.03em;
+        .header span:last-child {
+            opacity: 0.6;
+            font-size: 0.7rem;
         }
 
         .messages {
-            background: #0b0e14;
-            border-radius: 14px;
-            padding: 1rem;
-            height: 380px;
+            height: 360px;
             overflow-y: auto;
+            padding: 0.2rem 0;
             margin-bottom: 1rem;
-            border: 1px solid #232a33;
+            border: none;
+            background: transparent;
+            scrollbar-width: thin;
+            scrollbar-color: #33ff33 #111;
         }
 
         .messages::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
         }
         .messages::-webkit-scrollbar-thumb {
-            background: #2d3748;
-            border-radius: 10px;
+            background: #33ff33;
+        }
+        .messages::-webkit-scrollbar-track {
+            background: #111;
         }
 
         .message {
-            padding: 0.5rem 0.8rem;
-            border-radius: 12px;
-            margin-bottom: 0.6rem;
-            max-width: 88%;
+            padding: 0.2rem 0.3rem;
+            margin-bottom: 0.2rem;
+            white-space: pre-wrap;
             word-wrap: break-word;
-            line-height: 1.6;
-            animation: slideUp 0.2s ease;
-            font-size: 0.95rem;
+            line-height: 1.5;
+            font-size: 0.9rem;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .message.user::before {
+            content: "> ";
+            color: #88ff88;
         }
 
-        .message.user {
-            background: #1f6feb;
-            margin-left: auto;
-            color: #fff;
-        }
-
-        .message.bot {
-            background: #1e2630;
-            margin-right: auto;
-            color: #e6edf3;
+        .message.bot::before {
+            content: "◆ ";
+            color: #33ff33;
         }
 
         .message.error {
-            background: #b91c1c;
-            color: #fff;
+            color: #ff4444;
+        }
+        .message.error::before {
+            content: "✗ ";
+            color: #ff4444;
         }
 
         .typing-indicator {
             display: none;
-            padding: 0.4rem 0.8rem;
-            color: #7a8a9e;
+            padding: 0.2rem 0.3rem;
+            color: #558855;
             font-size: 0.85rem;
             font-style: italic;
         }
@@ -123,111 +107,100 @@
 
         .input-row {
             display: flex;
-            gap: 0.75rem;
+            gap: 0.5rem;
+            border-top: 1px solid #33ff33;
+            padding-top: 0.8rem;
         }
 
         .input-row input {
             flex: 1;
-            padding: 0.7rem 1rem;
-            border-radius: 14px;
-            border: 1px solid #2d3748;
-            background: #0b0e14;
-            color: #e6edf3;
-            font-size: 0.95rem;
+            padding: 0.4rem 0.6rem;
+            background: #111;
+            border: 1px solid #33ff33;
+            border-radius: 0;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
             outline: none;
-            transition: border 0.2s, box-shadow 0.2s;
         }
 
         .input-row input:focus {
-            border-color: #1f6feb;
-            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.2);
+            background: #1a1a1a;
+            border-color: #88ff88;
         }
 
         .input-row input::placeholder {
-            color: #5a6a7e;
+            color: #446644;
         }
 
         .input-row button {
-            padding: 0.7rem 1.8rem;
-            border-radius: 14px;
-            border: none;
-            background: #1f6feb;
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.95rem;
+            padding: 0.4rem 1.2rem;
+            background: #111;
+            border: 1px solid #33ff33;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            white-space: nowrap;
+            transition: background 0.1s;
         }
 
         .input-row button:hover {
-            background: #388bfd;
-        }
-
-        .input-row button:active {
-            transform: scale(0.96);
+            background: #1a1a1a;
+            border-color: #88ff88;
         }
 
         .input-row button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
-            transform: none;
         }
 
         .footer {
-            margin-top: 0.8rem;
+            margin-top: 0.6rem;
+            font-size: 0.6rem;
+            color: #446644;
             text-align: center;
-            font-size: 0.65rem;
-            color: #4a5a6e;
-            letter-spacing: 0.02em;
+            border-top: 1px solid #1a1a1a;
+            padding-top: 0.6rem;
         }
 
-        .footer a {
-            color: #4a7af0;
-            text-decoration: none;
+        .footer .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #33ff33;
+            margin-right: 4px;
         }
-
-        /* Unique touch: breathing glow on the container */
-        .chat-container {
-            animation: containerPulse 6s ease-in-out infinite;
-        }
-
-        @keyframes containerPulse {
-            0%, 100% { box-shadow: 0 12px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04); }
-            50% { box-shadow: 0 12px 50px rgba(31,111,235,0.08), 0 0 0 1px rgba(255,255,255,0.06); }
+        .footer .dot.offline {
+            background: #ff4444;
         }
     </style>
 </head>
 <body>
 
 <div class="chat-container">
-    <h1>
-        ✦ Chat
-        <span>Ollama</span>
-    </h1>
-
-    <div class="messages" id="messages">
-        <div class="message bot">
-            Hello! Ask me anything.
-        </div>
+    <div class="header">
+        <span>✦ chat</span>
+        <span id="status">●</span>
     </div>
 
-    <div class="typing-indicator" id="typing">… thinking</div>
+    <div class="messages" id="messages">
+        <div class="message bot">Hello.</div>
+    </div>
+
+    <div class="typing-indicator" id="typing">…</div>
 
     <div class="input-row">
-        <input type="text" id="question" placeholder="Type your question…" autofocus />
-        <button id="sendBtn">Send</button>
+        <input type="text" id="question" placeholder="type…" autofocus />
+        <button id="sendBtn">send</button>
     </div>
 
     <div class="footer">
-        ⚡ powered by Ollama · <span id="statusDot">●</span> live
+        <span class="dot" id="statusDot"></span> <span id="version">v0.1</span>
     </div>
 </div>
 
 <script>
-    // ------------------------------------------------------------------
-    // Load config.json (silently – no display)
-    // ------------------------------------------------------------------
     let API_URL = null;
 
     fetch('config.json')
@@ -238,25 +211,22 @@
         .then(config => {
             if (!config.apiUrl) throw new Error('Missing apiUrl');
             API_URL = config.apiUrl;
-            // Enable UI
             document.getElementById('question').disabled = false;
             document.getElementById('sendBtn').disabled = false;
-            document.getElementById('question').placeholder = 'Type your question…';
-            document.getElementById('statusDot').style.color = '#3fb950';
+            document.getElementById('question').placeholder = 'type…';
+            document.getElementById('status').textContent = '●';
+            document.getElementById('statusDot').classList.remove('offline');
         })
         .catch(err => {
             console.error('Config error:', err);
-            document.getElementById('statusDot').style.color = '#f85149';
-            document.querySelector('.footer span:last-child').textContent = '⚠️ offline';
+            document.getElementById('status').textContent = '✗';
+            document.getElementById('statusDot').classList.add('offline');
             const msg = document.createElement('div');
             msg.className = 'message error';
-            msg.textContent = '❌ Could not load config.json. Please check the file.';
+            msg.textContent = 'config.json not found.';
             document.getElementById('messages').appendChild(msg);
         });
 
-    // ------------------------------------------------------------------
-    // DOM refs
-    // ------------------------------------------------------------------
     const messagesEl = document.getElementById('messages');
     const typingEl = document.getElementById('typing');
     const inputEl = document.getElementById('question');
@@ -281,12 +251,9 @@
     function setLoading(loading) {
         sendBtn.disabled = loading || !API_URL;
         inputEl.disabled = loading || !API_URL;
-        sendBtn.textContent = loading ? '…' : 'Send';
+        sendBtn.textContent = loading ? '…' : 'send';
     }
 
-    // ------------------------------------------------------------------
-    // Send question – streaming
-    // ------------------------------------------------------------------
     async function sendQuestion(question) {
         if (!question.trim() || !API_URL) return;
 
@@ -336,7 +303,7 @@
                             botMsg.textContent = fullAnswer;
                             messagesEl.scrollTop = messagesEl.scrollHeight;
                         }
-                    } catch (_) { /* ignore partial JSON */ }
+                    } catch (_) {}
                 }
             }
 
@@ -344,7 +311,7 @@
 
         } catch (err) {
             console.error(err);
-            botMsg.textContent = '⚠️ ' + (err.message || 'Something went wrong.');
+            botMsg.textContent = 'Error: ' + (err.message || 'Something went wrong.');
             botMsg.className = 'message error';
         } finally {
             setTyping(false);
@@ -353,9 +320,6 @@
         }
     }
 
-    // ------------------------------------------------------------------
-    // Events
-    // ------------------------------------------------------------------
     sendBtn.addEventListener('click', () => { if (API_URL) sendQuestion(inputEl.value); });
     inputEl.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
