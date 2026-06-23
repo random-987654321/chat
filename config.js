@@ -1,1 +1,1 @@
-const API_URL = "https://hierarchy-hierarchy-northeast-join.trycloudflare.com";
+const API_URL = "https://grad-bradford-island-albany.trycloudflare.com";
