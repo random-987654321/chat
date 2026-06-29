@@ -105,7 +105,6 @@
             background: transparent;
         }
 
-        /* --- Generic message style --- */
         .message {
             padding: 0.3rem 0.5rem;
             margin-bottom: 0.25rem;
@@ -137,7 +136,16 @@
             opacity: 0.6;
         }
 
-        /* --- Thinking block (inside bot message) --- */
+        /* Temporary streaming text (same style as bot, but without prefix) */
+        .message.bot .stream-temp {
+            display: block;
+            color: #ccf2ff;
+            border-left: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        /* Thinking block (inside bot message) */
         .thinking {
             color: #88ff88;
             opacity: 0.75;
@@ -148,7 +156,7 @@
             white-space: pre-wrap;
         }
 
-        /* --- Answer block (inside bot message) --- */
+        /* Answer block (inside bot message) */
         .answer {
             white-space: pre-wrap;
         }
@@ -333,7 +341,7 @@
     inputEl.disabled = true;
     sendBtn.disabled = true;
 
-    // Helper: add a simple message (used for user and initial system messages)
+    // Helper: add a simple message (user or system)
     function addMessage(text, type = 'bot') {
         const div = document.createElement('div');
         div.className = `message ${type}`;
@@ -343,17 +351,16 @@
         return div;
     }
 
-    // Helper: create a bot message container that can hold thinking + answer
+    // Helper: create an empty bot message container
     function createBotMessageContainer() {
         const div = document.createElement('div');
         div.className = 'message bot';
-        // We'll append thinking and answer divs later
         messagesEl.appendChild(div);
         messagesEl.scrollTop = messagesEl.scrollHeight;
         return div;
     }
 
-    // Parse the full response to separate thinking (between <think> tags) and answer
+    // Parse the full response: extract thinking (between <think> tags) and answer
     function parseThinking(fullText) {
         const thinkRegex = /<think>([\s\S]*?)<\/think>/;
         const match = fullText.match(thinkRegex);
@@ -376,6 +383,7 @@
         sendBtn.textContent = loading ? '…' : 'send';
     }
 
+    // --- Main send function with streaming ---
     async function sendQuestion(question) {
         if (!question.trim() || !API_URL) return;
 
@@ -385,9 +393,14 @@
         setTyping(true);
         setLoading(true);
 
-        // Create an empty bot message container
         const botContainer = createBotMessageContainer();
         let fullAnswer = '';
+        let rawDisplay = '';
+
+        // We'll use a temporary div inside the container for the streaming text
+        const tempDiv = document.createElement('div');
+        tempDiv.className = 'stream-temp';
+        botContainer.appendChild(tempDiv);
 
         try {
             const response = await fetch(`${API_URL}/ask`, {
@@ -422,32 +435,32 @@
                     try {
                         const data = JSON.parse(jsonStr);
                         if (data.token !== undefined && !data.done) {
-                            fullAnswer += data.token || '';
-                            // Optional: update live streaming – we'll keep the container empty until done,
-                            // or we could show a temporary "..." message. For simplicity, we'll just collect.
+                            const token = data.token || '';
+                            fullAnswer += token;
+                            rawDisplay += token;
+                            tempDiv.textContent = rawDisplay;
+                            messagesEl.scrollTop = messagesEl.scrollHeight;
                         }
                     } catch (_) {}
                 }
             }
 
-            // Stream finished – parse the full answer
+            // Stream finished – now parse the full answer and replace the temp content
             const parsed = parseThinking(fullAnswer);
-            const thinkingDiv = document.createElement('div');
-            thinkingDiv.className = 'thinking';
-            thinkingDiv.textContent = '🤔 ' + (parsed.thinking || '');
+            // Clear the container
+            botContainer.innerHTML = '';
+
+            if (parsed.thinking) {
+                const thinkDiv = document.createElement('div');
+                thinkDiv.className = 'thinking';
+                thinkDiv.textContent = '🤔 ' + parsed.thinking;
+                botContainer.appendChild(thinkDiv);
+            }
+
             const answerDiv = document.createElement('div');
             answerDiv.className = 'answer';
-            answerDiv.textContent = parsed.answer || '(no response)';
-
-            // Clear the container and add the new parts
-            botContainer.innerHTML = '';
-            botContainer.appendChild(thinkingDiv);
+            answerDiv.textContent = parsed.answer || fullAnswer || '(no response)';
             botContainer.appendChild(answerDiv);
-
-            if (!parsed.answer && !parsed.thinking) {
-                // fallback: show the raw fullAnswer
-                answerDiv.textContent = fullAnswer || '(no response)';
-            }
 
             messagesEl.scrollTop = messagesEl.scrollHeight;
 
@@ -458,6 +471,7 @@
             errorDiv.className = 'message error';
             errorDiv.textContent = 'error: ' + (err.message || 'transmission failed');
             botContainer.appendChild(errorDiv);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
         } finally {
             setTyping(false);
             setLoading(false);
