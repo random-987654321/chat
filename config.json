@@ -1,4 +1,21 @@
 {
-  "apiUrl": "https://procedure-telecharger-postage-ddr.trycloudflare.com"
-  "workers": []
+  "name": "config.json",
+  "path": "config.json",
+  "sha": "b1a837f75825597cd50bc94f5d102e2cdeec6cd3",
+  "size": 94,
+  "url": "https://api.github.com/repos/random-123456789/chat/contents/config.json?ref=main",
+  "html_url": "https://github.com/random-123456789/chat/blob/main/config.json",
+  "git_url": "https://api.github.com/repos/random-123456789/chat/git/blobs/b1a837f75825597cd50bc94f5d102e2cdeec6cd3",
+  "download_url": "https://raw.githubusercontent.com/random-123456789/chat/main/config.json",
+  "type": "file",
+  "content": "ewogICJhcGlVcmwiOiAiaHR0cHM6Ly9wcm9jZWR1cmUtdGVsZWNoYXJnZXIt\ncG9zdGFnZS1kZHIudHJ5Y2xvdWRmbGFyZS5jb20iCiAgIndvcmtlcnMiOiBb\nXQp9Cg==\n",
+  "encoding": "base64",
+  "_links": {
+    "self": "https://api.github.com/repos/random-123456789/chat/contents/config.json?ref=main",
+    "git": "https://api.github.com/repos/random-123456789/chat/git/blobs/b1a837f75825597cd50bc94f5d102e2cdeec6cd3",
+    "html": "https://github.com/random-123456789/chat/blob/main/config.json"
+  },
+  "workers": [
+    "bore.pub:62143"
+  ]
 }
